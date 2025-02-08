@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suparna's Birthday</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, pink, silver);
+        }
+        .container {
+            margin-top: 100px;
+        }
+        .hidden {
+            display: none;
+        }
+        img {
+            max-width: 200px;
+            display: block;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="start-screen">
+        <h1>Welcome to Suparna's Birthday Wishes</h1>
+        <button onclick="showSuparnaLogin()">I'm Suparna</button>
+        <button onclick="showFriendForm()">I'm a Friend</button>
+    </div>
+
+    <div class="container hidden" id="suparna-login">
+        <h2>Enter Password</h2>
+        <input type="password" id="password" placeholder="Enter password">
+        <button onclick="checkPassword()">Submit</button>
+        <p id="error-message" style="color: red;"></p>
+    </div>
+
+    <div class="container hidden" id="suparna-message">
+        <h2>I love you so much Suparna. I will always love you. You are literally my heart.</h2>
+        <button onclick="showWishes()">See Wishes</button>
+    </div>
+
+    <div class="container hidden" id="friend-form">
+        <h2>Send Your Wish</h2>
+        <input type="text" id="name" placeholder="Your Name" required><br>
+        <textarea id="wish" placeholder="Your Wish" required></textarea><br>
+        <input type="file" id="image" accept="image/*"><br>
+        <button onclick="submitWish()">Submit</button>
+    </div>
+
+    <div class="container hidden" id="thank-you">
+        <h2>Thank you for your wish!</h2>
+    </div>
+
+    <div class="container hidden" id="wishes">
+        <h2>Wishes for Suparna</h2>
+        <div id="wishes-list"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadWishes);
+
+        function showSuparnaLogin() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('suparna-login').classList.remove('hidden');
+        }
+
+        function checkPassword() {
+            let password = document.getElementById('password').value;
+            if (password === 'penguine') {
+                document.getElementById('suparna-login').classList.add('hidden');
+                document.getElementById('suparna-message').classList.remove('hidden');
+            } else {
+                document.getElementById('error-message').textContent = 'Nice try diddy';
+            }
+        }
+
+        function showFriendForm() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('friend-form').classList.remove('hidden');
+        }
+
+        function submitWish() {
+            let name = document.getElementById('name').value;
+            let wish = document.getElementById('wish').value;
+            let image = document.getElementById('image').files[0];
+            
+            if (!name || !wish) {
+                alert('Name and Wish are required!');
+                return;
+            }
+            
+            let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+            let wishData = { name, wish };
+            
+            if (image) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    wishData.image = e.target.result;
+                    wishes.push(wishData);
+                    localStorage.setItem('wishes', JSON.stringify(wishes));
+                    displayWishes();
+                };
+                reader.readAsDataURL(image);
+            } else {
+                wishes.push(wishData);
+                localStorage.setItem('wishes', JSON.stringify(wishes));
+                displayWishes();
+            }
+            
+            document.getElementById('friend-form').classList.add('hidden');
+            document.getElementById('thank-you').classList.remove('hidden');
+        }
+
+        function loadWishes() {
+            let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+            let wishesList = document.getElementById('wishes-list');
+            wishesList.innerHTML = '';
+            
+            wishes.forEach(wishData => {
+                let wishContainer = document.createElement('div');
+                wishContainer.innerHTML = `<p><strong>${wishData.name}:</strong> ${wishData.wish}</p>`;
+                if (wishData.image) {
+                    let img = document.createElement('img');
+                    img.src = wishData.image;
+                    wishContainer.appendChild(img);
+                }
+                wishesList.appendChild(wishContainer);
+            });
+        }
+
+        function showWishes() {
+            document.getElementById('suparna-message').classList.add('hidden');
+            document.getElementById('wishes').classList.remove('hidden');
+            displayWishes();
+        }
+
+        function displayWishes() {
+            loadWishes();
+        }
+    </script>
+</body>
+</html>
